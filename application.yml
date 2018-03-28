@@ -1,0 +1,43 @@
+configserver: true
+bus: true
+
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    metadataMap:
+      instanceId: ${vcap.application.instance_id:${spring.application.name}:${server.port:8080}}
+  client:
+    serviceUrl:
+      defaultZone: ${vcap.services.springbox-service-registry.credentials.uri:http://127.0.0.1:8761}/eureka/
+
+---
+spring:
+  profiles: cloud
+#  zipkin:
+#    service:
+#      name: ${spring.application.name} 
+eureka:
+  instance:
+    hostname: ${vcap.application.uris[0]}
+    nonSecurePort: 80
+uaa:
+  server: http://localhost:9999/uaa
+security:
+  basic:
+    enabled: false
+  oauth2:
+    client:
+      client-id: demo
+      client-secret: demo
+      access-token-uri: ${uaa.server}/oauth/token
+      user-authorization-uri: ${uaa.server}/oauth/authorize
+      scope: read, write
+    resource:      
+      jwt:
+        keyValue: |
+          -----BEGIN PUBLIC KEY-----
+          MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCPAJI9rEDQHwwJrNl8eKZcVZVC
+          GGDEmrArSGkBGvb9grICazOVcME0a1D63Oreyzxnh6ViphecHJJsJm+D9d6VYVbF
+          afy6jAq0hJdAHA47J3YC0DL5vfE+sD8Esqg0BaR5wyKDdQFL5AbQmjHRib+wSJws
+          MgYHJmj+Sa7LRo6vlQIDAQAB
+          -----END PUBLIC KEY-----
